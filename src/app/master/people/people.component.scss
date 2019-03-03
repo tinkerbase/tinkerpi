@@ -1,0 +1,15 @@
+@import "../../../styles/_var.scss";
+
+.data-table {
+  padding: $padding__page;
+}
+
+.actions {
+  .create {
+    margin-left: $padding__page;
+  }
+}
+
+.clickable {
+  cursor: pointer;
+}

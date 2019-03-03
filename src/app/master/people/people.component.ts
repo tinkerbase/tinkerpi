@@ -66,7 +66,6 @@ export class PeopleComponent implements List<Person>, OnInit, OnDestroy {
 
     this.dataSource = this.people;
 
-
     this.people = ALL_IN_ONE_TABLE_DEMO_DATA.map(person => new Person(person));
     this.subject$.next(this.people);
     this.data$ = this.subject$.asObservable();

@@ -5287,7 +5287,7 @@ saucelabs@~1.3.0:
   version "1.3.0"
   resolved "https://registry.npmjs.org/saucelabs/-/saucelabs-1.3.0.tgz#d240e8009df7fa87306ec4578a69ba3b5c424fee"
   dependencies:
-    https-proxy-agent "^1.0.0"
+    https-proxy-agent "^2.2.1"
 
 sax@0.5.x:
   version "0.5.8"

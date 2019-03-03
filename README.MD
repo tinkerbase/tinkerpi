@@ -12,17 +12,21 @@ Navigate to `http://localhost:4200/`.
 
 ## Mock API
 
-[Json Server]https://github.com/typicode/json-server
+[Json Server](https://github.com/typicode/json-server)
 
 `db.json` has fake customer data
 
-`json-server --watch db.json`
+```
+json-server --watch db.json
+```
 
 ## CRUD Component
 
-[Link that needs fixed]http://localhost:4200/master/people
+[Link that needs fixed](http://localhost:4200/master/people)
 
-/src/app/master/people/people.componet.ts
+```
+/src/app/master/people/people.component.ts
+```
 
 I tried to wire it in on line 61, it calls the mock API:
 

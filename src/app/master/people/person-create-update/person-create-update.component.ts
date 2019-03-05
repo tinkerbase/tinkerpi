@@ -31,8 +31,8 @@ export class PersonCreateUpdateComponent implements OnInit {
     }
 
     this.form = this.fb.group({
-      id: [PersonCreateUpdateComponent.id++],
-      firstName: [this.defaults.firstName || '',],
+      id: [this.defaults.id || PersonCreateUpdateComponent.id++],
+      firstName: [this.defaults.firstName || ''],
       lastName: [this.defaults.lastName || ''],
       street: this.defaults.street || '',
       city: this.defaults.city || '',

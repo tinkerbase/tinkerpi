@@ -21,7 +21,7 @@ import { ALL_IN_ONE_TABLE_DEMO_DATA } from '../../pages/tables/all-in-one-table/
 })
 
 export class PeopleComponent implements List<Person>, OnInit, OnDestroy {
-  
+
   subject$: ReplaySubject<Person[]> = new ReplaySubject<Person[]>(1);
   data$: Observable<Person[]>;
   private errorMsg: string;
@@ -49,7 +49,7 @@ export class PeopleComponent implements List<Person>, OnInit, OnDestroy {
   @ViewChild(MatSort) sort: MatSort;
 
   constructor(private dialog: MatDialog, private _peopleService: PeopleService) {
-    
+
   }
 
   get visibleColumns() {
@@ -57,47 +57,38 @@ export class PeopleComponent implements List<Person>, OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this._peopleService.getPeople().subscribe(result => {
+      // this.people = ALL_IN_ONE_TABLE_DEMO_DATA.map(person => new Person(person));
+      this.people = result.map(person => new Person(person));
+      this.subject$.next(this.people);
+      this.data$ = this.subject$.asObservable();
 
-    this.people = this.getPeople();
-    /* this._peopleService.getPeople().subscribe((result)=>{    
-      this.people  =  result.body;
-      console.log('Component Init');
-    }) */
+      this.database = new ListDatabase<Person>();
 
-    this.dataSource = this.people;
+      this.data$.pipe(
+        takeUntil(componentDestroyed(this)),
+        filter(Boolean)
+      ).subscribe((people) => {
+        this.people = people;
+        this.database.dataChange.next(people);
+        this.resultsLength = people.length;
+      });
 
-    this.people = ALL_IN_ONE_TABLE_DEMO_DATA.map(person => new Person(person));
-    this.subject$.next(this.people);
-    this.data$ = this.subject$.asObservable();
-
-    this.database = new ListDatabase<Person>();
-    
-    this.data$.pipe(
-      takeUntil(componentDestroyed(this)),
-      filter(Boolean)
-    ).subscribe((people) => {
-      this.people = people;
-      this.database.dataChange.next(people);  
-      this.resultsLength = people.length; 
-    }); 
-
-    this.dataSource = new ListDataSource<Person>(this.database, this.sort, this.paginator, this.columns); 
-  }
-  
-  getPeople() {
-    this.people = [];
-    this._peopleService.getPeople().subscribe((data: {}) => {
-      console.log(data);
-      
-  });
-
+      this.dataSource = new ListDataSource<Person>(this.database, this.sort, this.paginator, this.columns);
+    });
   }
 
   createPerson() {
-    this.dialog.open(PersonCreateUpdateComponent).afterClosed().subscribe((person: Person) => {
+    const maxId = Math.max(...this.people.map(person => person.id));
+    this.dialog.open(PersonCreateUpdateComponent, {
+      data: { id: maxId + 1 }
+    }).afterClosed().subscribe((person: Person) => {
       if (person) {
-        this.people.unshift(new Person(person));
-        this.subject$.next(this.people);
+        this._peopleService.createPerson(person)
+          .subscribe(() => {
+            this.people.unshift(new Person(person));
+            this.subject$.next(this.people);
+          });
       }
     });
   }
@@ -107,16 +98,22 @@ export class PeopleComponent implements List<Person>, OnInit, OnDestroy {
       data: person
     }).afterClosed().subscribe(resp => {
       if (resp) {
-        const index = this.people.findIndex((existingPeople) => existingPeople.id === resp.id);
-        this.people[index] = new Person(resp);
-        this.subject$.next(this.people);
+        this._peopleService.updatePerson(resp)
+          .subscribe(() => {
+            const index = this.people.findIndex((existingPeople) => existingPeople.id === resp.id);
+            this.people[index] = new Person(resp);
+            this.subject$.next(this.people);
+          });
       }
     });
   }
 
   deletePerson(customer) {
-    this.people.splice(this.people.findIndex((existingPeople) => existingPeople.id === customer.id), 1);
-    this.subject$.next(this.people);
+    this._peopleService.deletePerson(customer.id)
+      .subscribe(() => {
+        this.people.splice(this.people.findIndex((existingPeople) => existingPeople.id === customer.id), 1);
+        this.subject$.next(this.people);
+      });
   }
 
   onFilterChange(value) {
